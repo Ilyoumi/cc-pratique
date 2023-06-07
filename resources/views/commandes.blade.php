@@ -25,6 +25,10 @@
                     <td>{{ $commande->prix }}</td>
                     <td>{{ $commande->categorie->nom }}</td>
                     <td>
+                        <img src="{{ asset('storage/' . $commande->image) }}" alt="Commande Image" width="100">
+                    </td>
+                    
+                    <td>
                         <a href="{{ route('commandes.show', $commande->id) }}">Voir</a>
                         <a href="{{ route('commandes.edit', $commande->id) }}">Modifier</a>
                         <form action="{{ route('commandes.destroy', $commande->id) }}" method="POST">

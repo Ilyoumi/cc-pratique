@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Commande;
+use App\Models\Categorie;
 class CommandeController extends Controller
 {
     /**
@@ -13,7 +14,7 @@ class CommandeController extends Controller
     {
         //
         $commandes = Commande::all();
-        return view('commandes.index', compact('commandes'));
+        return view('commandes', compact('commandes'));
     }
 
     /**
@@ -31,7 +32,25 @@ class CommandeController extends Controller
     public function store(Request $request)
     {
         //
-        Commande::create($request->all());
+        $request->validate([
+            'titre' => 'required|max:255',
+            'nombreCommande' => 'required|integer|min:0',
+            'prix' => 'required|integer|min:0',
+            'description' => 'required',
+            'categorie_id' => 'required|exists:categories,id',
+        ]);
+        $imagePath = $request->file('image')->store('images', 'public');
+    
+        Commande::create([
+            'titre' => $request->titre,
+            'nombreCommande' => $request->nombreCommande,
+            'image' => $imagePath,
+            'prix' => $request->prix,
+            'description' => $request->description,
+            'categorie_id' => $request->categorie_id,
+        ]);
+        return redirect()->route('commandes');
+        
     }
 
     /**
@@ -51,7 +70,8 @@ class CommandeController extends Controller
     {
         //
         $commande = Commande::findOrFail($id);
-        return view('commandes.edit', compact('commande'));
+        $categories = Categorie::all();
+        return view('commandes.edit', compact('commande', 'categories'));
     }
 
     /**
@@ -60,8 +80,16 @@ class CommandeController extends Controller
     public function update(Request $request, string $id)
     {
         //
+        $request->validate([
+            'titre' => 'required|max:255',
+            'nombreCommande' => 'required|integer|min:0',
+            'prix' => 'required|integer|min:0',
+            'description' => 'required',
+            'categorie_id' => 'required|exists:categories,id',
+        ]);
         $commande = Commande::findOrFail($id);
         $commande->update($request->all());
+        return redirect()->route('commandes.edit', $id)->with('success', 'Commande updated successfully');
     }
 
     /**
@@ -72,5 +100,7 @@ class CommandeController extends Controller
         //
         $commande = Commande::findOrFail($id);
         $commande->delete();
+        return redirect()->route('commandes.create')->with('success', 'Commande deleted successfully');
+    
     }
 }
